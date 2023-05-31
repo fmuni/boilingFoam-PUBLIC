@@ -1,0 +1,233 @@
+//*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     icoBoilingFoam;
+
+startFrom       latestTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         15;
+
+deltaT         1e-10;
+
+writeControl    adjustableRunTime;
+
+writeInterval   0.0001;
+
+purgeWrite      2;
+
+writeFormat     binary;
+
+writePrecision  12;
+
+writeCompression no;
+
+timeFormat      general;
+
+timePrecision   10;
+
+runTimeModifiable yes;
+
+adjustTimeStep  yes;
+
+maxCo           0.1;
+maxDi           10000;
+maxAlphaCo      0.1;
+maxDeltaT       1.0;
+maxCapillaryNum 0.5;
+
+
+functions
+{
+//----------------------------------------------------------------------------//
+//- Function to end the simulation when bubbles reach the end of the domain.
+      endSim
+      {
+          libs ("libutilityFunctionObjects.so");
+          type coded;
+          name endSimu;
+          writeControl timeStep;
+          writeInterval 1;
+          active yes;
+          region fluid;
+          codeExecute
+          #{
+               const volScalarField& alpha =
+                   mesh().lookupObject<volScalarField>("alpha.liquid");
+
+               word patchName("outlet");
+               label patchID(mesh().boundaryMesh().findPatchID(patchName));
+
+               const scalarField& alphab(alpha.boundaryField()[patchID]);
+
+               label endSimu(0);
+               forAll(alphab, faceI)
+               {
+                       if(alphab[faceI] < 0.99)
+                       {
+                            endSimu = 1;
+                       }
+               }
+
+               reduce(endSimu,sumOp<label>());
+
+               if(endSimu > 0)
+               {
+                        Info<< "\nA bubble reached the outlet."
+                            << " Ending the simulation now."
+                            << endl;
+                        Time& runTime = const_cast<Time&>(mesh().time());
+                        runTime.writeAndEnd();
+
+               }
+          #};
+      }
+
+//----------------------------------------------------------------------------//
+//- Sampling functions.
+
+       sampled_footprint
+       {
+               type    surfaces;
+               libs    (sampling);
+               log     true;
+
+               executeControl  timeStep;
+               executeInterval 500;
+               writeControl    timeStep;
+               writeInterval 500;
+               sampleOnExecute true;
+
+               surfaceFormat   raw;
+
+               region fluid;
+               fields      (T alpha.liquid kappa qw);
+
+               surfaces
+               {
+                       interface
+                       {
+                               type patch;
+                               patches (fluid_to_solid);
+                       }
+               }
+       }
+
+       sampled_base
+       {
+          type    surfaces;
+          libs    (sampling);
+          log     true;
+
+          executeControl  timeStep;
+          executeInterval 500;
+          writeControl    timeStep;
+          writeInterval 500;
+          sampleOnExecute true;
+
+          surfaceFormat   raw;
+          region solid;
+          fields      (T );
+
+           surfaces
+           {
+                   bottom
+                   {
+                           type patch;
+                           patches (wall_bottom);
+                   }
+           }
+         }
+        
+         sampled_symm
+       {
+          type    surfaces;
+          libs    (sampling);
+          log     true;
+
+          executeControl  timeStep;
+          executeInterval 500;
+          writeControl    timeStep;
+          writeInterval 500;
+          sampleOnExecute true;
+
+          surfaceFormat   raw;
+          region solid;
+          fields      (T );
+
+           surfaces
+           {
+                   wall_symm
+                   {
+                           type patch;
+                           patches (wall_symm);
+                   }
+           }
+         }
+
+//----------------------------------------------------------------------------//
+   //- Function to sample the interface.
+        freeSurface
+   {
+       type            surfaces;
+       libs            ("libsampling.so");
+       surfaceFormat  raw;
+       executeControl  timeStep;
+       executeInterval 500;
+       writeControl    timeStep;
+       writeInterval 500;
+       sampleOnExecute true;
+       region fluid;
+       fields
+       (
+           alpha.liquid
+       );
+       surfaces
+       (
+           freeSurface
+           {
+               type        isoSurfaceCell;
+               isoField    alpha.liquid;
+               isoValue    0.5;
+               interpolate false;
+               regularise  false;
+           }
+       );
+       interpolationScheme cellPointFace;
+   }
+
+//----------------------------------------------------------------------------//
+   //- Function to process and output global data.
+   //  It also creates the Nu field.
+   postData
+   {
+       // Mandatory entries (unmodifiable)
+       type           postBoiling;
+       libs           ("boilingFunctionObject");
+       active           yes;
+       region           fluid;
+
+       alphaName   alpha.liquid;
+
+       //- Patches were relevant quantities are computed
+       patches ( fluid_to_solid );
+
+       //- Saturation temperature
+       Tsat    373.15;
+
+       //- Reference length;
+       Lr  229e-6;
+   }
+
+}

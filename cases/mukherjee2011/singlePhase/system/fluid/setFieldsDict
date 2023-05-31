@@ -1,0 +1,50 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  plus                                  |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      setFieldsDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Parameter definition
+sf 229e-6;
+rb          #calc "0.1*$sf";
+defaultFieldValues
+(
+
+);
+
+regions
+(
+
+   sphereToCell
+    {
+          centre (#calc "0.99*$sf" #calc "$rb*sqrt(2.)*0.5" 0);
+          radius 32e-6; //bubble radius plus 3 cells
+
+        fieldValues
+        (
+            volScalarFieldValue T 373.15
+        );
+    }
+
+    sphereToCell
+     {
+           centre (#calc "0.99*$sf" #calc "$rb*sqrt(2.)*0.5" 0);
+           radius 229e-7; 
+
+         fieldValues
+         (
+             volScalarFieldValue alpha.liquid 0
+         );
+     }
+);

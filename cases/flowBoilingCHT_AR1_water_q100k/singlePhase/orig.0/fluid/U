@@ -1,0 +1,165 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  plus                                  |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField  #codeStream
+{
+    code
+    #{
+        const IOdictionary& d = static_cast<const IOdictionary&>(dict);
+        const fvMesh& mesh = refCast<const fvMesh>(d.db());
+
+        #include "../../../initUParams.H"
+
+        vectorField fld(mesh.nCells(), vector(Ul,0,0));
+
+        //- Compute useful stuff
+        const scalar alpha=1.0/AR;
+        const scalar m=1.7+0.5*pow(alpha,-1.4);
+        const scalar n = (alpha<=0.3333) ? 2.0 : 2.0+0.3*(alpha-0.3333);
+
+        forAll(mesh.C(), cellI)
+        {
+            const scalar y = mesh.C()[cellI].y();
+            const scalar z = mesh.C()[cellI].z();
+            fld[cellI] = vector
+            (
+                Ul*(m+1)*(n+1)/(n*m)
+                *(
+                    1.0-pow(fabs(y-WSolid-width/2.0)/(width/2.0),m)
+                 )
+                *(
+                    1.0-pow(fabs(z)/(height),n)
+                ),
+                0.0,
+                0.0
+            );
+        }
+
+        Info << fld;
+        fld.writeEntry("", os);
+    #};
+
+    //- Optional:
+    codeInclude
+    #{
+        #include "fvCFD.H"
+    #};
+
+    //- Optional:
+    codeOptions
+    #{
+        -I$(LIB_SRC)/finiteVolume/lnInclude \
+        -I$(LIB_SRC)/meshTools/lnInclude
+    #};
+};
+
+
+boundaryField
+{
+    fluid_to_solid
+    {
+        type            noSlip;
+    }
+
+    adiabaticWall
+    {
+        type            noSlip;
+    }
+
+    plexi
+    {
+        type            noSlip;
+    }
+
+    symm
+    {
+        type            symmetry;
+    }
+
+    inlet
+    {
+        type            fixedValue;
+        value           #codeStream
+        {
+            code
+            #{
+                const IOdictionary& d = static_cast<const IOdictionary&>
+                (
+                    dict.parent().parent()
+                );
+                const fvMesh& mesh = refCast<const fvMesh>(d.db());
+
+                const label patchID(mesh.boundaryMesh().findPatchID("inlet"));
+
+                const fvPatch& boundaryPatch = mesh.boundary()[patchID];
+
+                const vectorField& Cf = boundaryPatch.Cf();
+
+                #include "../../../initUParams.H"
+
+                vectorField fld(Cf.size(), vector(Ul,0,0));
+
+                //- Compute useful stuff
+                const scalar alpha=1.0/AR;
+                const scalar m=1.7+0.5*pow(alpha,-1.4);
+                const scalar n = (alpha<=0.3333) ? 2.0 : 2.0+0.3*(alpha-0.3333);
+
+                forAll(Cf, faceI)
+                {
+                    const scalar y = Cf[faceI].y();
+                    const scalar z = Cf[faceI].z();
+                    fld[faceI] = vector
+                    (
+                        Ul*(m+1)*(n+1)/(n*m)
+                        *(
+                            1.0-pow(fabs(y-WSolid-width/2.0)/(width/2.0),m)
+                         )
+                        *(
+                            1.0-pow(fabs(z)/(height),n)
+                        ),
+                        0.0,
+                        0.0
+                    );
+                }
+
+                fld.writeEntry("", os);
+            #};
+
+            //- Optional:
+            codeInclude
+            #{
+                #include "fvCFD.H"
+            #};
+
+            //- Optional:
+            codeOptions
+            #{
+                -I$(LIB_SRC)/finiteVolume/lnInclude \
+                -I$(LIB_SRC)/meshTools/lnInclude
+            #};
+        };
+
+    }
+
+    outlet
+    {
+        type            zeroGradient;
+    }
+}
+
+// ************************************************************************* //

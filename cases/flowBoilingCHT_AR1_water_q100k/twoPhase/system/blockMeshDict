@@ -1,0 +1,75 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  plus                                  |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+convertToMeters 1;
+#include "../../geometry.H"
+
+vertices
+(
+    (0 0 0)
+    ($channelL 0 0)
+    ($channelL $channelH 0)
+    (0 $channelH 0)
+    (0 0 $channelW)
+    ($channelL 0 $channelW)
+    ($channelL $channelH $channelW)
+    (0 $channelH $channelW)
+);
+
+blocks
+(
+    hex (0 1 2 3 4 5 6 7) ($nx $ny $nz)
+    simpleGrading (1 1 1)
+);
+
+patches
+(
+    wall wall_bottom
+    (
+        (1 5 4 0)
+    )
+
+    symmetry wall_symm
+    (
+        (4 5 6 7)
+    )
+
+    wall plexi
+    (
+        (2 6 7 3)
+    )
+
+    symmetry symm
+    (
+        (0 1 2 3)
+    )
+
+    patch outlet
+    (
+        (2 6 5 1)
+    )
+
+    patch inlet
+    (
+        (0 4 7 3)
+    )
+
+    empty frontAndBack
+    (
+    )
+);
+
+// ************************************************************************* //

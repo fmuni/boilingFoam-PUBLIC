@@ -1,0 +1,13 @@
+#!/bin/sh
+cd "${0%/*}" || exit                                # Run from this directory
+. ${WM_PROJECT_DIR:?}/wmake/scripts/AllwmakeParseArguments
+
+#------------------------------------------------------------------------------
+input="etc/buildList"
+
+while IFS= read -r target
+do
+  wmake $targetType $target
+done < "$input"
+
+#------------------------------------------------------------------------------

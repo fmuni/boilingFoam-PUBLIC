@@ -1,0 +1,21 @@
+#!/bin/sh
+cd ${0%/*} || exit 1    # Run from this directory
+
+# Source tutorial run functions
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+# generate mesh
+runApplication blockMesh -region fluid
+restore0Dir
+
+# map temperature profile
+runApplication setFieldfromTable -region fluid
+
+mv 0 0.00033
+runApplication setAlphaField -region fluid
+#runApplication $(getApplication)
+
+runApplication decomposePar -region fluid
+runParallel $(getApplication)
+python python/plotBenchmark.py
+#------------------------------------------------------------------------------

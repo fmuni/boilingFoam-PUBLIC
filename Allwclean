@@ -1,0 +1,20 @@
+#!/bin/bash
+cd "${0%/*}" || exit                                # Run from this directory
+
+#------------------------------------------------------------------------------
+echo WARNING: This will clean all the libraries and solvers!
+echo Press y to proceed or anything else to abort.
+
+read varname;
+
+if [[ "$varname" == "y" ]];
+then
+    input="etc/buildList"
+
+    while IFS= read -r target
+    do
+      wclean $targetType $target
+    done < "$input"
+
+fi
+#------------------------------------------------------------------------------

@@ -1,0 +1,62 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  plus                                  |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      alpha.water;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 0 0 0 0 0 0];
+
+internalField   uniform 1;
+
+boundaryField
+{
+    fluid_to_heater
+    {
+        type            constantAlphaContactAngle;
+        gradient        uniform 0;
+        limit           gradient;
+        theta0          5;
+        value           uniform 1;
+    }
+
+    side
+    {
+        type            inletOutlet;
+        value           uniform 1;
+        inletValue      uniform 1;
+    }
+
+    top
+    {
+        type            inletOutlet;
+        value           uniform 1;
+        inletValue      uniform 1;
+    }
+
+    front
+    {
+        type            wedge;
+    }
+
+    back
+    {
+        type            wedge;
+    }
+
+    axis
+    {
+        type             empty;
+    }
+}
+
+// ************************************************************************* //

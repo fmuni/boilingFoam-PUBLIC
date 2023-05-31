@@ -1,0 +1,12 @@
+HFluid 0.0002290000;
+WFluid 0.0001145000;
+WSolid 0.0000286250;
+HSolid 0.0000458000;
+channelL 0.0045800000;
+adiabaticL 0.0045800000;
+channelH 0.0002748000;
+channelW 0.0001431250;
+channelHyD 0.0002290000;
+nx 2000;
+ny 120;
+nz 62;

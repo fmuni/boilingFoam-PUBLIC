@@ -1,0 +1,60 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  plus                                  |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      alpha.water;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 0 0 0 0 0 0];
+
+internalField   uniform 1;
+
+boundaryField
+{
+    walls
+    {
+        type            constantAlphaContactAngle;
+        gradient        uniform 0;
+        limit           gradient;
+        theta0          30;
+        value           uniform 1;
+    }
+
+    plexi
+    {
+        type            constantAlphaContactAngle;
+        gradient        uniform 0;
+        limit           gradient;
+        theta0          30;
+        value           uniform 1;
+    }
+
+    symm
+    {
+        type            symmetry;
+    }
+
+    inlet
+    {
+        type        fixedValue;
+        value       uniform 1;
+    }
+
+    outlet
+    {
+    type        inletOutlet;
+    inletValue 	uniform 1;
+    value	uniform 1;
+    }
+}
+
+// ************************************************************************* //

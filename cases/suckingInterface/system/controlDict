@@ -1,0 +1,82 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.7.0                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     icoBoilingFoam;
+
+startFrom       startTime;
+
+startTime       0.1;
+
+stopAt          endTime;
+
+endTime         0.6;
+
+deltaT          1e-7;
+
+writeControl    adjustableRunTime;
+
+writeInterval   0.1;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  12;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   10;
+
+runTimeModifiable yes;
+
+adjustTimeStep  yes;
+
+maxCo           0.01;
+maxAlphaCo      0.01;
+maxDeltaT       0.01;
+
+
+functions
+{
+bubbleVol
+      {
+          libs ("libutilityFunctionObjects.so");
+          type coded;
+          name bubbleVol;
+          writeControl timeStep;
+          writeInterval 1;
+          active yes;
+          region fluid;
+          codeWrite
+          #{
+               const volScalarField& alpha =
+                   mesh().lookupObject<volScalarField>("alpha.vapour");
+               scalar bubbleV(0);
+               bubbleV = fvc::domainIntegrate(alpha).value();
+
+               if (Pstream::master()){
+                  std::ofstream file;
+                  file.open ("bubbleInfo.csv", std::ofstream::out | std::ofstream::app);
+                  file << mesh().time().value() << " , " << bubbleV <<  std::endl;
+                  file.close();
+               }
+          #};
+      }
+};
+// ************************************************************************* //

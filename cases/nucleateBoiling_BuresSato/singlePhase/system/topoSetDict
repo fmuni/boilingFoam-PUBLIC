@@ -1,0 +1,84 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2012                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      topoSetDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+#include "../simSetup"
+
+actions
+(
+    // Fluid region
+    {
+        name    fluidCellSet;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        box     (0 -1 0) (1 1 1);
+    }
+    {
+        name    fluid;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        set     fluidCellSet;
+    }
+
+    // Titanium heater
+    {
+        name    heaterCellSet;
+        type    cellSet;
+        action  new;
+        source  boxToCell;
+        box     (0 -1 #calc "-$Height_heater")(1 1 0); 
+    }
+    {
+        name    heater;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        set     heaterCellSet;
+    }
+
+    // sapphire
+    {
+        name    solidCellSet;
+        type    cellSet;
+        action  new;
+        source  cellToCell;
+        set     fluidCellSet;
+    }
+    {
+        name    solidCellSet;
+        type    cellSet;
+        action  add;
+        source  cellToCell;
+        set     heaterCellSet;
+    }
+    {
+        name solidCellSet;
+        type cellSet;
+        action invert;
+    }
+    {
+        name    solid;
+        type    cellZoneSet;
+        action  new;
+        source  setToCellZone;
+        set     solidCellSet;
+    }
+
+);
+
+
+// ************************************************************************* //

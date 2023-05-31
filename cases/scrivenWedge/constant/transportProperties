@@ -1,0 +1,60 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.7.0                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      transportProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+phases (liquid vapour);
+
+liquid
+{
+    transportModel  		Newtonian;
+    nu              		nu [ 0 2 -1 0 0 0 0 ] 2.922e-7;  //mu = 2.8e-4 Pa s
+    rho             		rho [ 1 -3 0 0 0 0 0 ] 958.4;
+    kappa			kappa [1 1 -3 -1 0 0 0] 0.671;
+    Cp				Cp [ 0 2 -2 -1 0 0 0] 4216;
+    Hf                          Hf [0 2 -2 0 0 0 0] 2.26e6;
+}  
+
+vapour
+{
+    transportModel		Newtonian;
+    nu				nu [ 0 2 -1 0 0 0 0 ] 2.11e-5;   //mu = 1.26e-5
+    rho				rho [ 1 -3 0 0 0 0 0 ] 0.585;
+    kappa			kappa [1 1 -3 -1 0 0 0] 0.0203;
+    Cp				Cp [ 0 2 -2 -1 0 0 0] 2030;
+    Hf                          Hf [0 2 -2 0 0 0 0] 0.0;
+}
+
+sigma           sigma [ 1 0 -2 0 0 0 0 ] 0.0;
+
+PhaseChangeProperties
+{
+    model           hardtSimple;
+    Tsat            Tsat [0 0 0 1 0 0 0] 373.15;
+    R               R [0 2 -2 -1 0 0 0] 461.5;
+    sigmaEvap       sigmaEvap [0 0 0 0 0 0 0 ] 1.0;
+    sigmaCond       sigmaCond [0 0 0 0 0 0 0 ] 1.0;
+     DmDot           DmDot [0 2 0 0 0 0 0] 1.0e-12;
+}
+
+
+
+// Rint = 2*Hevap*rhoV*rhoL/sqrt(2*pi*R)/(rhoL-rhoV)/Tsat^1.5 = 390.5 Kg/m^2 s K
+// Rvapour = 461.5 J/kg K
+// Aspec = interfacialArea/V = 1e3 1/m
+// coeffC = Aspec*Rint/rhoV = 1.17e4 1/s K
+// coeffE = Aspec*Rint/rhoL = 7.3 1/s K
+
+// ************************************************************************* //

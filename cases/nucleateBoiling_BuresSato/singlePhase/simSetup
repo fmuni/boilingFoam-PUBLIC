@@ -1,0 +1,38 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v1606+                                |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      transportProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+Rb0 0.00001; // Initial bubble radius
+
+/* mesh */
+alpha 2.5; // angle of the wedge in degrees
+Width 0.0025; // width of domain
+HeightF 0.0015; // height of fluid domain
+HeightS 0.001; // height of solid domain
+meshSize 2.0e-6; // background mesh size; see snappyHexMeshDict for level 1 refinement in box1
+Height_heater 0.5e-6;// Thickness of heater for topoSetDict. In fvOptions, this must be put manually
+
+alphaRad #calc "degToRad($alpha)"; // conversion of wedge angle into radiants
+xLim #calc "$Width*cos($alphaRad)";
+yLim #calc "$Width*sin($alphaRad)";
+
+nx #calc "floor($Width/$meshSize)"; // total number of mesh elements along x
+nz #calc "floor(($HeightF+$HeightS)/$meshSize)"; // total number of mesh elements along z
+
+
+
+
+

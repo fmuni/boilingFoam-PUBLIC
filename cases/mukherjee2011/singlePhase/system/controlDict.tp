@@ -1,0 +1,139 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  plus                                  |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     icoBoilingFoam;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         0.002;
+
+deltaT         1e-10;
+
+writeControl    adjustableRunTime;
+
+writeInterval   0.0005;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  12;
+
+writeCompression no;
+
+timeFormat      general;
+
+timePrecision   10;
+
+runTimeModifiable yes;
+
+adjustTimeStep  yes;
+
+maxCo           0.1;
+maxAlphaCo      0.1;
+maxDeltaT       1.0;//#calc "1e-3*$t0";;
+
+
+functions
+{
+    bubbleVol
+       {
+           libs ("libutilityFunctionObjects.so");
+           type coded;
+           name bubbleVol;
+           writeControl timeStep;
+           writeInterval 1;
+           active yes;
+           region fluid;
+           codeWrite
+           #{
+                const volScalarField& alpha =
+                    mesh().lookupObject<volScalarField>("alpha.vapour");
+                scalar bubbleV(0);
+                bubbleV = fvc::domainIntegrate(alpha).value();
+
+                if (Pstream::master()){
+                   std::ofstream file;
+                   file.open ("bubbleInfo.csv", std::ofstream::out | std::ofstream::app);
+                   file << mesh().time().value() << " , " << bubbleV <<  std::endl;
+                   file.close();
+                }
+           #};
+       }
+       
+/*       Destroyer
+       {
+           type             bubbleDestroyer;
+           libs             ("boilingFunctionObject");
+           active           yes;
+           region           fluid;
+
+           direction       (1 0 0);
+           alphaName       alpha.liquid;
+           numberOfProbes  40;
+
+       }
+*/
+
+       endSim
+       {
+           libs ("libutilityFunctionObjects.so");
+           type coded;
+           name endSimu;
+           writeControl timeStep;
+           writeInterval 1;
+           active yes;
+           region fluid;
+           codeExecute
+           #{
+                const volScalarField& alpha =
+                    mesh().lookupObject<volScalarField>("alpha.liquid");
+               
+                word patchName("outlet");
+                label patchID(mesh().boundaryMesh().findPatchID(patchName));
+                
+                const scalarField& alphab(alpha.boundaryField()[patchID]);
+                
+                label endSimu(0);
+                forAll(alphab, faceI)
+                {
+                        if(alphab[faceI] < 0.99)
+                        {                             
+                             endSimu = 1;
+                        }
+                }
+
+                reduce(endSimu,sumOp<label>());
+
+                if(endSimu > 0)
+                {
+                         Info<< "\nA bubble reached the outlet. Ending the simulation now." 
+                             << endl;
+                         Time& runTime = const_cast<Time&>(mesh().time());
+                         runTime.writeAndEnd();
+
+                }
+           #};
+       }
+
+
+}
+// ************************************************************************* //

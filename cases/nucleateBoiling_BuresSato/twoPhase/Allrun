@@ -1,0 +1,15 @@
+#!/bin/sh
+cd ${0%/*} || exit 1    # Run from this directory
+
+# Source tutorial run functions
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+cp -r ../singlePhase/0.088 .; cp -r ../singlePhase/constant .; cp -r ../singlePhase/system .; cp -r ../singlePhase/simSetup .
+mv 0.088 0; rm 0/uniform/time
+cp system/controlDict.tp system/controlDict; cp system/heater/fvOptions.tp system/heater/fvOptions; cp system/fluid/fvSolution.tp system/fluid/fvSolution 
+
+runApplication setAlphaField -region fluid
+#runApplication decomposePar -allRegions
+#runParallel $(getApplication)
+
+#------------------------------------------------------------------------------

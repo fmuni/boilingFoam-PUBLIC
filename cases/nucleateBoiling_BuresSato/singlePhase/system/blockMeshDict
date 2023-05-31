@@ -1,0 +1,109 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.6                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#include "../simSetup"
+
+scale 1;
+
+vertices        
+(
+    (0  0 #calc "-$HeightS")
+    ($xLim  $yLim #calc "-$HeightS")
+    ($xLim $yLim $HeightF)
+    (0 0 $HeightF) 
+    ($xLim #calc "-$yLim" #calc "-$HeightS")
+    ($xLim #calc "-$yLim" $HeightF)
+);
+
+blocks
+(
+hex (0 4 1 0 3 5 2 3) ($nx  1 $nz) simpleGrading (1 1 1)
+//(       
+//        (
+//            (0.2 0.5260 1)    // 20% y-dir, 30% cells, expansion = 4
+//            (0.1 0.1057 5)    // 60% y-dir, 40% cells, expansion = 1
+//            (0.7 0.3683 1) // 20% y-dir, 30% cells, expansion = 0.25 (1/4)
+//        )
+//        1                  
+//        (
+//            (0.2 0.5260 1)    // 20% y-dir, 30% cells, expansion = 4
+//            (0.1 0.1057 5)    // 60% y-dir, 40% cells, expansion = 1
+//            (0.7 0.3683 1) // 20% y-dir, 30% cells, expansion = 0.25 (1/4)
+//        )
+//)
+);
+ 
+edges
+(
+);
+ 
+boundary
+(
+     front
+     { 
+           type wedge;
+           faces  
+           (
+               (0 1 2 3)
+           );
+      }
+     back
+     { 
+           type wedge;
+           faces  
+           (
+               (0 3 5 4)
+           );
+      }
+     side
+     { 
+           type patch;
+           faces  
+           (
+               (1 4 5 2)
+           );
+      }
+     bottom
+     { 
+           type wall;
+           faces  
+           (
+               (0 4 1 0)
+           );
+      }
+     top
+     { 
+           type patch;
+           faces  
+           (
+               (3 5 2 3)
+           );
+      }
+     axis
+     { 
+           type empty;
+           faces  
+           (
+               (0 3 3 0)
+           );
+      }
+);
+ 
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //

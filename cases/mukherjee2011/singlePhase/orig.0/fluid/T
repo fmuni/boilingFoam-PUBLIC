@@ -1,0 +1,100 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  plus                                  |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      T.water;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 0 0 1 0 0 0];
+internalField uniform 373.15;
+// internalField  #codeStream
+// {
+//     code
+//     #{
+//         const IOdictionary& d = static_cast<const IOdictionary&>(dict);
+//         const fvMesh& mesh = refCast<const fvMesh>(d.db());
+//         scalarField fld(mesh.nCells(), 373.25);
+//
+//         scalar deltaT(2.1);
+//         scalar deltaL(0.99*229e-6);
+//
+//         scalar rad(0.1*229e-6);
+//
+//         vector orig
+//         (
+//             0.99*229e-6,
+//             rad*sqrt(2.)*0.5,
+//             0
+//         );
+//
+//
+//
+//         forAll(fld,cellI)
+//         {
+//             fld[cellI] = 375.25 - mesh.C()[cellI].component(1)/deltaL*deltaT;
+//
+//             scalar d(pow(mesh.V()[cellI],1.0/3.0)*sqrt(2.));
+//             if( mag(mesh.C()[cellI] - orig) < rad + 3.*d  )
+//             {
+//                 fld[cellI] = 373.15;
+//             }
+//         }
+//
+//         fld.writeEntry("", os);
+//     #};
+//
+//     //- Optional:
+//     codeInclude
+//     #{
+//         #include "fvCFD.H"
+//     #};
+//
+//     //- Optional:
+//     codeOptions
+//     #{
+//         -I$(LIB_SRC)/finiteVolume/lnInclude \
+//         -I$(LIB_SRC)/meshTools/lnInclude
+//     #};
+// };
+
+
+boundaryField
+{
+    walls
+    {
+        type            fixedValue;
+        value           uniform 375.15;
+    }
+
+    plexi
+    {
+        type    zeroGradient;
+    }
+
+    symm
+    {
+        type            symmetry;
+    }
+
+    inlet
+    {
+        type            fixedValue;
+        value           uniform 373.15;
+    }
+
+    outlet
+    {
+        type            zeroGradient;
+    }
+}
+
+// ************************************************************************* //

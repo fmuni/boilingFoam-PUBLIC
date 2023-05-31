@@ -1,0 +1,81 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.7.0                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     icoBoilingFoam;
+
+startFrom       latestTime;
+
+startTime       0;
+
+stopAt          writeNow;//endTime;
+
+endTime         0.005;
+
+deltaT          1E-8;
+
+writeControl    adjustableRunTime;
+writeInterval   0.0005;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  8;
+
+writeCompression on;
+
+timeFormat      general;
+
+timePrecision   10;
+
+runTimeModifiable yes;
+
+adjustTimeStep  yes;
+
+maxCo           0.02;
+maxAlphaCo      0.02;
+
+maxDeltaT       1e-5;
+
+functions
+{
+bubbleVol
+      {
+          libs ("libutilityFunctionObjects.so");
+          type coded;
+          name bubbleVol;
+          writeControl timeStep;
+          writeInterval 1;
+          active yes;
+          region fluid;
+          codeWrite
+          #{
+               const volScalarField& alpha =
+                   mesh().lookupObject<volScalarField>("alpha.vapour");
+               scalar bubbleV(0);
+               bubbleV = fvc::domainIntegrate(alpha).value();
+
+               if (Pstream::master()){
+                  std::ofstream file;
+                  file.open ("bubbleInfo.csv", std::ofstream::out | std::ofstream::app);
+                  file << mesh().time().value() << " , " << bubbleV <<  std::endl;
+                  file.close();
+               }
+          #};
+      }
+};
+// ************************************************************************* //

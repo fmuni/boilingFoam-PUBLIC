@@ -1,0 +1,98 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.7.0                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      transportProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+phases (liquid vapour);
+
+liquid
+{
+    transportModel  		Newtonian;
+    nu              		nu [ 0 2 -1 0 0 0 0 ] 2.922e-7;  //mu = 2.8e-4 Pa s
+    rho             		rho [ 1 -3 0 0 0 0 0 ] 958.4;
+    kappa			 0.679;
+    Cp				 4216;
+}
+
+vapour
+{
+    transportModel		Newtonian;
+    nu				nu [ 0 2 -1 0 0 0 0 ] 2.11e-5;   //mu = 1.26e-5
+    rho				rho [ 1 -3 0 0 0 0 0 ] 0.597;
+    kappa			0.025;
+    Cp				2030;
+    Hf              0.0;
+}
+
+sigma           sigma [ 1 0 -2 0 0 0 0 ] 0.0588;
+
+//- Re-distribute surface tension force based on the fluid density
+sigmaRhoCorrection true;
+
+//- Hard bound alpha such that only interface gradients are allowed
+alphaInterfaceOnly no;
+
+//- The reconstruction scheme employed must be specified here and it is 
+//  required even with the MULES
+reconstructionScheme    isoAlpha;
+
+
+
+PhaseChangeProperties
+{
+    Tsat            373.15;
+    R               461.5;
+    sigmaEvap       1.0;
+    DmDot           1.0e-11;
+    hf              2.26e6;
+}
+
+/*
+microlayerModel
+{
+//- Exponential is deprecated
+/*
+    //- Exponent
+    b   0.7714;
+    
+    //- Constant
+    A   15.27;
+
+
+    //- Coefficients of the polynomium
+    coefficients 4(17.37 -2.501 0.286 -0.01207);
+        
+    //- Patches where the microlayer model is applied
+    patches ( walls );
+
+    debug on;
+}
+
+*/
+
+curvatureModel
+{
+    type gradAlpha;
+    
+    //- Requires several smoothing iterations for isoAdvector
+    KSmoothingIter  4;
+}
+
+deltaModel
+{
+    type gradAlpha;
+}
+
+// ************************************************************************* //

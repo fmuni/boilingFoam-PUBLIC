@@ -1,0 +1,81 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.7.0                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      transportProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+phases (liquid vapour);
+
+liquid
+{
+    transportModel  		Newtonian;
+    nu              		nu [ 0 2 -1 0 0 0 0 ] 2.922e-7;  //mu = 2.8e-4 Pa s
+    rho             		rho [ 1 -3 0 0 0 0 0 ] 958.4;
+    kappa			0.671;
+    Cp				4216;
+}  
+
+vapour
+{
+    transportModel		Newtonian;
+    nu				nu [ 0 2 -1 0 0 0 0 ] 2.11e-5;   //mu = 1.26e-5
+    rho				rho [ 1 -3 0 0 0 0 0 ] 0.585;
+    kappa			0.0203;
+    Cp				2030;
+}
+
+sigma           sigma [ 1 0 -2 0 0 0 0 ] 0.0;
+
+//- Re-distribute surface tension force based on the fluid density
+sigmaRhoCorrection true;
+
+//- Hard bound alpha such that only interface gradients are allowed
+alphaInterfaceOnly no;
+
+//- The reconstruction scheme employed must be specified here and it is
+//  required even with the MULES
+reconstructionScheme    isoAlpha;
+
+curvatureModel
+{
+    type gradAlpha;
+
+    //- Requires several smoothing iterations for isoAdvector
+    KSmoothingIter  4;
+}
+
+deltaModel
+{
+    type gradAlpha;
+}
+
+
+PhaseChangeProperties
+{
+    Tsat            373.15;
+    R               461.5;
+    sigmaEvap       1.0;
+     DmDot          1.0e-11;
+    hf              2.26e6;
+}
+
+
+
+// Rint = 2*Hevap*rhoV*rhoL/sqrt(2*pi*R)/(rhoL-rhoV)/Tsat^1.5 = 390.5 Kg/m^2 s K
+// Rvapour = 461.5 J/kg K
+// Aspec = interfacialArea/V = 1e3 1/m
+// coeffC = Aspec*Rint/rhoV = 1.17e4 1/s K
+// coeffE = Aspec*Rint/rhoL = 7.3 1/s K
+
+// ************************************************************************* //
