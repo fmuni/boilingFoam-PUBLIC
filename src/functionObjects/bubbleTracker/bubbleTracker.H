@@ -126,9 +126,9 @@ class bubbleTracker
             {
                 return id;
             }
-
-            return -1;
         }
+
+        return -1;
     };
 
     inline label getBubbleLocId
@@ -138,10 +138,12 @@ class bubbleTracker
         label& maxNofBubbles
     )
     {
-        return (globalId > maxNofBubbles-1) ?
-            globalId - minId + maxNofBubbles
-            :
-            globalId;
+        if(globalId > maxNofBubbles-1)
+        {
+            return globalId - minId + maxNofBubbles;
+        }
+
+        return globalId;
     };
 
     inline label getBubbleGlobalId
@@ -151,10 +153,13 @@ class bubbleTracker
         label& maxNofBubbles
     )
     {
-         return (localId > maxNofBubbles-1) ?
-            minId + localId
-            :
-            localId;
+
+        if(localId > maxNofBubbles-1)
+        {
+            return minId + localId;
+        }
+
+        return localId;
     };
 
 

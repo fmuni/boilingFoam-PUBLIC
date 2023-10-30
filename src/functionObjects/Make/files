@@ -8,6 +8,7 @@ bubbleGenerator/nucleationModels/fixedRadius/fixedRadius.C
 
 bubbleGenerator/locationModels/locationModel/locationModel.C
 bubbleGenerator/locationModels/fixedSites/fixedSites.C
+bubbleGenerator/locationModels/patchSites/patchSites.C
 
 bubbleTracker/bubbleTracker.C
 
