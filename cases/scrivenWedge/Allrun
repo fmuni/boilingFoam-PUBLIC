@@ -17,5 +17,6 @@ runApplication setAlphaField -region fluid
 
 runApplication decomposePar -region fluid
 runParallel $(getApplication)
+runApplication reconstructPar -region fluid
 python python/plotBenchmark.py
 #------------------------------------------------------------------------------
