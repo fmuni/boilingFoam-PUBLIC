@@ -29,7 +29,6 @@ solvers
 
         isoAdvection            true;
         reconstructionScheme    isoAlpha;
-        RDFStencil      4;
 
 
         solver          smoothSolver;
