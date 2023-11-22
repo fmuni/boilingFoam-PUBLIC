@@ -15,3 +15,12 @@ Volume 195,
 ISSN 0017-9310,
 https://doi.org/10.1016/j.ijheatmasstransfer.2022.123166.
 
+* F. Municchi, C. N. Markides, O.K. Matar, M. Magnini,
+Computational study of bubble, thin-film dynamics and heat transfer during flow boiling in non-circular microchannels,
+Applied Thermal Engineering,
+Volume 238,
+2024,
+122039,
+ISSN 1359-4311,
+https://doi.org/10.1016/j.applthermaleng.2023.122039.
+
