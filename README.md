@@ -1,10 +1,9 @@
 # boilingFoam-PUBLIC
 OpenFOAM-based solvers, libraries, and test cases for simulating boiling flows with VOF using both interFoam and isoAdvector. The solver is developed for ESI OpenFOAM v2106. <br>
-The pdf file boilingFoam.pdf serves as a guide to phase change modelling, boilingFoam, and to the tutorials available in this repository.
 
 Documentation
 -------------
-A detailed documentation with description of the models implemented in __boilingFoam__ can be found [HERE](/doc/boilingFoam.pdf).
+A detailed documentation with description of the models implemented in __boilingFoam__ and a guide to the tutorials available in this repository can be found [HERE](/doc/boilingFoam.pdf).
 
 # references
 
