@@ -7,6 +7,9 @@
     const int nOuterCorr =
         pimple.getOrDefault<int>("nOuterCorrectors", 1);
 
+    const int nMeshCorr =
+        pimple.getOrDefault<int>("nMeshCorrectors", 1);
+
     bool converged(false);
 
     const scalar fluxTol(pimple.getOrDefault<double>("fluxTolerance", 1e-8));

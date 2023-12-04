@@ -4,6 +4,7 @@
     PtrList<radiation::radiationModel> radiations(solidRegions.size());
     PtrList<fv::options> solidHeatSources(solidRegions.size());
     PtrList<volScalarField> betavSolid(solidRegions.size());
+    PtrList<volScalarField> refineSolid(solidRegions.size());
     PtrList<volSymmTensorField> aniAlphas(solidRegions.size());
 
     scalarField maxTSolid(solidRegions.size(),0.);
@@ -13,6 +14,25 @@
     {
         Info<< "*** Reading solid mesh thermophysical properties for region "
             << solidRegions[i].name() << nl << endl;
+
+        Info<< "    Adding to refine\n" << endl;
+        refineSolid.set
+        (
+            i,
+            new volScalarField
+            (
+                IOobject
+                (
+                    "refine",
+                    runTime.timeName(),
+                    solidRegions[i],
+                    IOobject::READ_IF_PRESENT,
+                    IOobject::AUTO_WRITE
+                ),
+                solidRegions[i],
+                dimensionedScalar(dimless,0.)
+            )
+        );
 
         Info<< "    Adding to thermos\n" << endl;
         thermos.set(i, solidThermo::New(solidRegions[i]));
@@ -112,4 +132,6 @@
                 )
             );
         }
+        
+        solidRegions[i].setV0() = solidRegions[i].V();
     }

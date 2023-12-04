@@ -1,0 +1,40 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2012                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      topoSetDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#include "../../geometry.H"
+
+actions
+(
+    {
+        name    adiabaticWall;
+        type    faceSet;
+        action  new;
+        source  patchToFace;
+        patch   fluid_to_solid;
+    }
+    {
+        name    adiabaticWall;
+        type    faceSet;
+        action  subtract;
+        source  boxToFace;
+        box   (0 0 0) ($adiabaticL 1 1);
+    }
+
+);
+
+
+// ************************************************************************* //

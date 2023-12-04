@@ -1,6 +1,6 @@
     const wordList solidNames(rp["solid"]);
 
-    PtrList<fvMesh> solidRegions(solidNames.size());
+    PtrList<dynamicFvMesh> solidRegions(solidNames.size());
 
     forAll(solidNames, i)
     {
@@ -10,7 +10,7 @@
         solidRegions.set
         (
             i,
-            new fvMesh
+            dynamicFvMesh::New
             (
                 IOobject
                 (

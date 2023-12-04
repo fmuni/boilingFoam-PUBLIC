@@ -96,6 +96,7 @@ int main(int argc, char *argv[])
     #include "solidRegionDiffusionNo.H"
     #include "setInitialMultiRegionDeltaT.H"
 
+    Info << "\nStarting time loop";
     while (runTime.run())
     {
         #include "readTimeControls.H"
@@ -122,7 +123,10 @@ int main(int argc, char *argv[])
         for (int oCorr=0; oCorr<nOuterCorr; ++oCorr)
         {
             const bool finalIter = (oCorr == nOuterCorr-1);
+            
+            #include "updateMeshes.H"
 
+            //- Solve
             forAll(fluidRegions, i)
             {
                 Info<< "\nSolving for fluid region "

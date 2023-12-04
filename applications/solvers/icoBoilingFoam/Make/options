@@ -49,4 +49,5 @@ EXE_LIBS = \
     -lcompressibleTurbulenceModels \
     -lradiationModels \
     -lregionModels \
+    -lthermoTools \
     -L$(FOAM_USER_LIBBIN) -linterfacePropertiesBoiling -lgeometricVoFBoiling

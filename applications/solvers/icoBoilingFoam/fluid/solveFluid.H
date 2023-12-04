@@ -1,6 +1,6 @@
-if (oCorr == 0 || moveMeshOuterCorrectors)
+//if (oCorr == 0 || moveMeshOuterCorrectors)
 {
-    mesh.update();
+    //mesh.update();
 
     if (mesh.changing())
     {

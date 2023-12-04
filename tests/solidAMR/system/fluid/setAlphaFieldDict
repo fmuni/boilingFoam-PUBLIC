@@ -1,0 +1,35 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2206                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+field "alpha.liquid";
+type composedFunction;
+mode add;
+invert true;
+meshCorrectors 5;
+composedFunction
+{
+    sphere
+    {
+        type sphere;
+        origin (0.0015 0.0015 0.0005);
+        radius 0.0002;
+        scale 1;
+    }
+}
+
+
+// ************************************************************************* //
