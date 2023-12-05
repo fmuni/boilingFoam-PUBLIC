@@ -17,7 +17,7 @@ runApplication setFields -region fluid
 runApplication setAlphaFieldDyn -region fluid
 cp -rf 5e-10/fluid/* 0/fluid/
 rm -rf *e-10
-runApplication icoBoilingFoam
+runApplication icoBoilingFoam-solidAMR
 
 
 #------------------------------------------------------------------------------
