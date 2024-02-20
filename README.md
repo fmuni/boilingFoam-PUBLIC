@@ -1,7 +1,7 @@
 # boilingFoam-PUBLIC
 OpenFOAM-based solvers, libraries, and test cases for simulating boiling flows with VOF using both interFoam and isoAdvector. 
 
-__Use the solver with OpenFOAM v2006.__ <br>
+Compile with OpenFOAM v2106 patch=211215 or OpenFOAM v2006. <br>
 
 Documentation
 -------------
