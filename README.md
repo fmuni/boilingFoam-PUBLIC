@@ -3,6 +3,8 @@ OpenFOAM-based solvers, libraries, and test cases for simulating boiling flows w
 
 Compile with OpenFOAM v2106 or OpenFOAM v2006.  If using a pre-compiled version of OpenFOAM v2106, use pre-compiled patch [211215](https://develop.openfoam.com/Development/openfoam/-/tree/OpenFOAM-v2106.211215/META-INFO?ref_type=tags). <br>
 
+To install OpenFOAM, please follow the intructions [here](https://develop.openfoam.com/Development/openfoam/-/wikis/precompiled/debian).
+
 Documentation
 -------------
 A detailed documentation with description of the models implemented in __boilingFoam__ and a guide to the tutorials available in this repository can be found [HERE](/doc/boilingFoam.pdf).
