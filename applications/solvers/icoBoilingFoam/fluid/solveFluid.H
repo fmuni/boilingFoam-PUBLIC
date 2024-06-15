@@ -1,5 +1,8 @@
 if (oCorr == 0 || moveMeshOuterCorrectors)
 {
+    //- Store divergence of U from unrefined mesh
+    volScalarField absDivU("divU0",fvc::div(fvc::absolute(phi, U)));
+    
     mesh.update();
 
     if (mesh.changing())
