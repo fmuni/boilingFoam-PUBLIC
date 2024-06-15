@@ -3,6 +3,8 @@ if (oCorr == 0 || moveMeshOuterCorrectors)
     //- Store divergence of U from unrefined mesh
     volScalarField absDivU("divU0",fvc::div(fvc::absolute(phi, U)));
     
+    interface.correct();
+
     mesh.update();
 
     if (mesh.changing())
@@ -18,6 +20,19 @@ if (oCorr == 0 || moveMeshOuterCorrectors)
         ghf = (g & mesh.Cf()) - ghRef;
 
         MRF.update();
+        // interface.correct();
+        
+        interface.surf().mapAlphaField();
+        alpha2 = 1.0 - alpha1;
+        alpha2.correctBoundaryConditions();
+        rho == alpha1*rho1 + alpha2*rho2;
+        rho.correctBoundaryConditions();
+        rho.oldTime() = rho;
+        alpha2.oldTime() = alpha2;
+
+        rhoCp == alpha1*rho1*cp1 + alpha2*rho2*cp2;
+        rhoCp.correctBoundaryConditions();
+        rhoCp.oldTime() = rhoCp;              
 
         if (correctPhi)
         {
@@ -29,9 +44,7 @@ if (oCorr == 0 || moveMeshOuterCorrectors)
 
             // Make the flux relative to the mesh motion
             fvc::makeRelative(phi, U);
-
             mixture.correct();
-            interface.correct();
         }
 
         if (checkMeshCourantNo)
