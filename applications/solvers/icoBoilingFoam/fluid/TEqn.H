@@ -29,5 +29,8 @@
      //update continuity source with new T
      #include "computeMassSource.H"
 
-
+    if(mixture.found("writeQwall"))
+    {
+        qwFluid[i] = -kappa*fvc::grad(T);
+    }
 }
