@@ -1,3 +1,5 @@
+if(!mixture.found("writeQwall")) continue;
+
 scalar sumConduction = 0.0;
 scalar sumConvection = 0.0;
 scalar sumTot = 0.;
@@ -6,12 +8,6 @@ scalar sumTot = 0.;
 surfaceScalarField heatFluxD = -fvc::interpolate(kappa)*fvc::snGrad(T);
 
 const surfaceScalarField::Boundary& patchHeatFluxD = heatFluxD.boundaryFieldRef();
-
-if(mixture.found("writeQwall"))
-{
-    qwFluid[i] = -kappa*fvc::grad(T);
-}
-
 
 Info<< "\nWall heat fluxes [W] fluid region " << fluidRegions[i].name()
     << endl;
