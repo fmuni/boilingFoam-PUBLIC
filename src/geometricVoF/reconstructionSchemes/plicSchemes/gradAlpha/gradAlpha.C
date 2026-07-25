@@ -48,21 +48,23 @@ void Foam::reconstruction::gradAlpha::gradSurf(const volScalarField& phi)
 {
     leastSquareGrad<scalar> lsGrad("polyDegree1",mesh_.geometricD());
 
-    exchangeFields_.setUpCommforZone(interfaceCell_,true);
+    zoneDistribute& exchangeFields = zoneDistribute::New(mesh_);
+
+    exchangeFields.setUpCommforZone(interfaceCell_,true);
 
     Map<vector> mapCC
     (
-        exchangeFields_.getDatafromOtherProc(interfaceCell_, mesh_.C())
+        exchangeFields.getDatafromOtherProc(interfaceCell_, mesh_.C())
     );
     Map<scalar> mapPhi
     (
-        exchangeFields_.getDatafromOtherProc(interfaceCell_, phi)
+        exchangeFields.getDatafromOtherProc(interfaceCell_, phi)
     );
 
     DynamicField<vector> cellCentre(100);
     DynamicField<scalar> phiValues(100);
 
-    const labelListList& stencil = exchangeFields_.getStencil();
+    const labelListList& stencil = exchangeFields.getStencil();
 
     forAll(interfaceLabels_, i)
     {
@@ -75,11 +77,11 @@ void Foam::reconstruction::gradAlpha::gradSurf(const volScalarField& phi)
         {
             cellCentre.append
             (
-                exchangeFields_.getValue(mesh_.C(), mapCC, gblIdx)
+                exchangeFields.getValue(mesh_.C(), mapCC, gblIdx)
             );
             phiValues.append
             (
-                exchangeFields_.getValue(phi, mapPhi, gblIdx)
+                exchangeFields.getValue(phi, mapPhi, gblIdx)
             );
         }
 
@@ -111,7 +113,6 @@ Foam::reconstruction::gradAlpha::gradAlpha
     interfaceNormal_(fvc::grad(alpha1)),
     isoFaceTol_(modelDict().getOrDefault<scalar>("isoFaceTol", 1e-8)),
     surfCellTol_(modelDict().getOrDefault<scalar>("surfCellTol", 1e-8)),
-    exchangeFields_(zoneDistribute::New(mesh_)),
     sIterPLIC_(mesh_,surfCellTol_)
 {
     reconstruct();

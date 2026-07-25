@@ -83,8 +83,6 @@ void Foam::reconstructedDistanceFunction::markCellsNearSurf
     const label neiRingLevel
 )
 {
-    neiRingLevel_ = neiRingLevel;
-
     // performance might be improved by increasing the saving last iterations
     // cells in a Map and loop over the map
     if (mesh_.topoChanging())
@@ -106,7 +104,7 @@ void Foam::reconstructedDistanceFunction::markCellsNearSurf
     // do coupled face first
     Map<bool> syncMap;
 
-    for (int level=0;level<=neiRingLevel;level++)
+    for (label level=0;level<=neiRingLevel;level++)
     {
         // parallel
         if (level > 0)
@@ -223,13 +221,12 @@ Foam::reconstructedDistanceFunction::reconstructedDistanceFunction
             mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
-            IOobject::AUTO_WRITE
+            IOobject::NO_WRITE
         ),
         mesh,
         dimensionedScalar("cellDistLevel", dimless, -1)
     ),
-    nextToInterface_(mesh.nCells(), false),
-    neiRingLevel_(1)
+    nextToInterface_(mesh.nCells(), false)
 {}
 
 
@@ -266,9 +263,8 @@ const Foam::volScalarField&  Foam::reconstructedDistanceFunction::constructRDF
 
     const labelListList& stencil = distribute.getStencil();
 
-//- Old algorithm
-/*
-   forAll(nextToInterface,celli)
+
+    forAll(nextToInterface,celli)
     {
         if (nextToInterface[celli])
         {
@@ -284,9 +280,8 @@ const Foam::volScalarField&  Foam::reconstructedDistanceFunction::constructRDF
                 scalar avgWeight = 0;
                 const point p = mesh_.C()[celli];
 
-                forAll(stencil[celli], i)
+                for (const label gblIdx : stencil[celli])
                 {
-                    const label gblIdx = stencil[celli][i];
                     vector n = -distribute.getValue(normal, mapNormal, gblIdx);
                     if (mag(n) != 0)
                     {
@@ -308,7 +303,6 @@ const Foam::volScalarField&  Foam::reconstructedDistanceFunction::constructRDF
                         averageDist += distToSurf * weight;
                         avgWeight += weight;
                     }
-
                 }
 
                 if (avgWeight != 0)
@@ -381,298 +375,6 @@ const Foam::volScalarField&  Foam::reconstructedDistanceFunction::constructRDF
                 }
             }
         }
-    } */
-
-    //- FM: new iterative algorithm
-    //  The RDF is computed in successive steps where only node neighbours
-    //  communicate.
-
-    //- Store normal direction field (this will be non zero also far from)
-    //  the interface.
-    volVectorField  localNormal(normal);
-
-    //- Set the RDF to zero
-    reconDistFunc *= 0.;
-
-    //- Cell centers should be accessible within the stencil
-    Map<vector> mapCellC =
-        distribute.getDatafromOtherProc(nextToInterface, mesh_.C());
-
-    //- Create new maps for exchange of updated fields
-    Map<vector> mapLocalNormal =
-        distribute.getDatafromOtherProc(nextToInterface, localNormal);
-
-    Map<scalar> mapRDF =
-        distribute.getDatafromOtherProc(nextToInterface, reconDistFunc);
-
-    for(label level(0); level < neiRingLevel_ + 1; level++ )
-    {
-
-        forAll(nextToInterface,celli)
-        {
-            //- Select one level at the time to save computations
-            if
-            (
-                cellDistLevel_[celli] > level-1
-                &&
-                cellDistLevel_[celli] < level+1
-            )
-            {
-                if (mag(normal[celli]) > SMALL)
-                {
-                    //- This only works for cells at the interface
-                    vector n = -normal[celli]/mag(normal[celli]);
-                    scalar dist = (centre[celli] - mesh_.C()[celli]) & n;
-                    reconDistFunc[celli] = dist;
-                    localNormal[celli] = n;
-                }
-                else if
-                (
-                    level == 1
-                    ||
-                    level == 0
-                )// nextToInterfaceCell or level == 1 cell
-                {
-                    scalar averageDist = 0;
-                    scalar avgWeight = 0;
-                    const point p = mesh_.C()[celli];
-
-                    forAll(stencil[celli], i)
-                    {
-                        const label gblIdx = stencil[celli][i];
-                        vector n = -distribute.getValue
-                        (
-                            normal,
-                            mapNormal,
-                            gblIdx
-                        );
-
-                        if (mag(n) > SMALL)
-                        {
-                            n /= mag(n);
-                            vector c = distribute.getValue
-                            (
-                                centre,
-                                mapCentres,
-                                gblIdx
-                            );
-                            vector distanceToIntSeg = (c - p);
-                            scalar distToSurf = distanceToIntSeg & (n);
-                            scalar weight(0.);
-
-                            if (mag(distanceToIntSeg) > SMALL)
-                            {
-                                distanceToIntSeg /= mag(distanceToIntSeg);
-                                weight = sqr(mag(distanceToIntSeg & n));
-                            }
-                            else // exactly on the center
-                            {
-                                weight = 1.0;
-                            }
-                            averageDist += distToSurf * weight;
-                            avgWeight += weight;
-
-                            //- The local normal should be the weighted average
-                            //  of the normals
-                            localNormal[celli] += n;
-                        }
-
-                    }
-
-                    if (avgWeight > SMALL)
-                    {
-                        reconDistFunc[celli] = averageDist / avgWeight;
-
-                        //- Also store the local normal
-                        localNormal[celli] /= avgWeight;
-                    }
-                    else
-                    {
-                        reconDistFunc[celli] = 0;
-                    }
-
-                }
-                else
-                {
-                    //- For furhter cells the RDF is built based on the RDF
-                    //  of the neighbours and their local normals.
-                    scalar averageDist = 0;
-                    scalar avgWeight = 0;
-                    const point p = mesh_.C()[celli];
-
-                    forAll(stencil[celli], i)
-                    {
-                        const label gblIdx = stencil[celli][i];
-                        vector n =
-                            distribute.getValue
-                            (
-                                localNormal,
-                                mapLocalNormal,
-                                gblIdx
-                            );
-
-                        if (mag(n) > SMALL)
-                        {
-                            n /= mag(n);
-
-                            //- Get neighbour RDF
-                            scalar rdfN =
-                                distribute.getValue
-                                (
-                                    reconDistFunc,
-                                    mapRDF,
-                                    gblIdx
-                                );
-
-                            //- Get neighbour cell centre
-                            vector c =
-                                distribute.getValue
-                                (
-                                    mesh_.C(),
-                                    mapCellC,
-                                    gblIdx
-                                );
-
-                            vector distanceToIntSeg = (c - p);
-                            scalar distToSurf =
-                                rdfN + (distanceToIntSeg & (n));
-                            scalar weight(0.);
-
-                            if (mag(distanceToIntSeg) > SMALL)
-                            {
-                                distanceToIntSeg /= mag(distanceToIntSeg);
-                                weight = sqr(mag(distanceToIntSeg & n));
-                            }
-                            else // exactly on the center
-                            {
-                                weight = 1.;
-                            }
-                            averageDist += distToSurf * weight;
-                            avgWeight += weight;
-
-                            //- The local normal should be the weighted average
-                            //  of the normals
-                            localNormal[celli] += n;
-                        }
-
-                    }
-
-                    if (avgWeight > SMALL)
-                    {
-                        reconDistFunc[celli] = averageDist / avgWeight;
-
-                        //- Also store the local normal
-                        localNormal[celli] /= avgWeight;
-                    }
-                }
-            }
-
-        }
-
-        //- Update new maps for exchange of updated fields
-        mapLocalNormal =
-            distribute.getDatafromOtherProc(nextToInterface, localNormal);
-
-        mapRDF =
-            distribute.getDatafromOtherProc(nextToInterface, reconDistFunc);
-
-    }
-
-
-    //- Now the same algorithm is applied to the boundary field
-    //  There is no need to loop over the levels because the maps are filled
-    //  already
-    forAll(reconDistFunc.boundaryField(), patchI)
-    {
-        fvPatchScalarField& pRDF = reconDistFunc.boundaryFieldRef()[patchI];
-        if (isA<calculatedFvPatchScalarField>(pRDF))
-        {
-            const polyPatch& pp = pRDF.patch().patch();
-            forAll(pRDF, i)
-            {
-                const label pCellI = pp.faceCells()[i];
-
-                if (mag(normal[pCellI]) > SMALL)
-                {
-                    //- To be consistent with cells at the interface
-                    vector n = -normal[pCellI]/mag(normal[pCellI]);
-                    scalar dist =
-                    (
-                        centre[pCellI] - mesh_.C().boundaryField()[patchI][i]
-                    ) & n;
-
-                    pRDF[i] = dist;
-                }
-                else
-                {
-
-                    //- On the next neighbour (standard algorithm)
-                    scalar averageDist = 0;
-                    scalar avgWeight = 0;
-                    const point p = mesh_.C().boundaryField()[patchI][i];
-
-                    forAll(stencil[pCellI], j)
-                    {
-                        const label gblIdx = stencil[pCellI][j];
-                        vector n = distribute.getValue
-                        (
-                            localNormal,
-                            mapLocalNormal,
-                            gblIdx
-                        );
-
-                        if (mag(n) > SMALL)
-                        {
-                            n /= mag(n);
-                            //- Get neighbour RDF
-                            scalar rdfN =
-                                distribute.getValue
-                                (
-                                    reconDistFunc,
-                                    mapRDF,
-                                    gblIdx
-                                );
-
-                            //- Get neighbour cell centre
-                            vector c =
-                                distribute.getValue
-                                (
-                                    mesh_.C(),
-                                    mapCellC,
-                                    gblIdx
-                                );
-                            vector distanceToIntSeg = (c - p);
-
-                            scalar distToSurf =
-                                rdfN + (distanceToIntSeg & (n));
-                            scalar weight = 0;
-
-                            if (mag(distanceToIntSeg) > SMALL)
-                            {
-                                distanceToIntSeg /= mag(distanceToIntSeg);
-                                weight = sqr(mag(distanceToIntSeg & n));
-                            }
-                            else // exactly on the center
-                            {
-                                weight = 1.;
-                            }
-                            averageDist += distToSurf * weight;
-                            avgWeight += weight;
-                        }
-                    }
-
-                    if (avgWeight > SMALL)
-                    {
-                        pRDF[i] = averageDist / avgWeight;
-                    }
-                    else
-                    {
-                        pRDF[i] = 0;
-                    }
-
-                }
-            }
-        }
     }
 
     reconDistFunc.correctBoundaryConditions();
@@ -714,7 +416,7 @@ void Foam::reconstructedDistanceFunction::updateContactAngle
             );
 
             RDFbf[patchi] =
-                1.0/acap.patch().deltaCoeffs()*cos(theta)
+                1/acap.patch().deltaCoeffs()*cos(theta)
               + RDFbf[patchi].patchInternalField();
         }
     }

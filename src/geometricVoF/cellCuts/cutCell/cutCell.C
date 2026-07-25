@@ -37,8 +37,17 @@ int Foam::cutCell::debug = 0;
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::cutCell::cutCell(const fvMesh&)
-{}
+Foam::cutCell::cutCell
+(
+    const fvMesh& mesh
+)
+{
+    // required as otherwise setAlphaFields might not work in parallel
+    mesh.C();
+    mesh.V();
+    mesh.Cf();
+    mesh.magSf();
+}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
@@ -47,7 +56,8 @@ void Foam::cutCell::calcCellData
 (
     const DynamicList<point>& cutFaceCentres,
     const DynamicList<vector>& cutFaceAreas,
-    vector& subCellCentre, scalar& subCellVolume
+    vector& subCellCentre,
+    scalar& subCellVolume
 )
 {
     // Clear the fields for accumulation
@@ -159,11 +169,27 @@ void Foam::cutCell::calcIsoFacePointsFromEdges
     DynamicList<point>& facePoints
 )
 {
+    if (mag(faceArea) < VSMALL)
+    {
+        facePoints.clear();
+        return;
+    }
     const vector zhat = normalised(faceArea);
     vector xhat = faceEdges[0][0] - faceCentre;
     xhat = (xhat - (xhat & zhat)*zhat);
     xhat.normalise();
+    if (mag(xhat) == 0)
+    {
+        facePoints.clear();
+        return;
+    }
     vector yhat = normalised(zhat ^ xhat);
+    if (mag(yhat) == 0)
+    {
+        facePoints.clear();
+        return;
+    }
+    yhat.normalise();
 
     // Calculating all intersection points
     DynamicList<point> unsortedFacePoints(3 * faceEdges.size());

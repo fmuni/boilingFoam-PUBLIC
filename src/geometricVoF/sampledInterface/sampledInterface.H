@@ -6,6 +6,7 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
     Copyright (C) 2020 DLR
+    Copyright (C) 2020 OpenCFD Ltd.
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -39,8 +40,8 @@ Usage
     {
         freeSurf
         {
-            type            interface;
-            interpolate     false;
+            type        interface;
+            interpolate false;
         }
     }
     \endverbatim
@@ -81,13 +82,14 @@ class sampledInterface
 {
     // Private Data
 
-        //- Zone name/index (if restricted to zones)
-        mutable cellZoneID zoneID_;
+        //- Restrict to given cell zones
+        wordRes zoneNames_;
 
         //- For zones: patch to put exposed faces into
         mutable word exposedPatchName_;
 
         mutable autoPtr<reconstructionSchemes::interface> surfPtr_;
+
 
     // Recreated for every interface
 

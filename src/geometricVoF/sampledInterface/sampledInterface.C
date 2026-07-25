@@ -58,26 +58,34 @@ bool Foam::sampledInterface::updateGeometry() const
         return false;
     }
 
-    // Get any subMesh
-    if (!subMeshPtr_ && zoneID_.index() != -1)
+    prevTimeIndex_ = fvm.time().timeIndex();
+
+    // Not really being used...
+
+    // Get sub-mesh if any
+    if
+    (
+        !subMeshPtr_
+     && (-1 != mesh().cellZones().findIndex(zoneNames_))
+    )
     {
-        const cellZone& cz = mesh().cellZones()[zoneID_.index()];
+        const label exposedPatchi =
+            mesh().boundaryMesh().findPatchID(exposedPatchName_);
 
-        const polyBoundaryMesh& patches = mesh().boundaryMesh();
-
-        // Patch to put exposed internal faces into
-        const label exposedPatchi = patches.findPatchID(exposedPatchName_);
+        bitSet cellsToSelect(mesh().cellZones().selection(zoneNames_));
 
         DebugInfo
-            << "Allocating subset of size " << cz.size()
+            << "Allocating subset of size "
+            << cellsToSelect.count()
             << " with exposed faces into patch "
-            << patches[exposedPatchi].name() << endl;
+            << exposedPatchi << endl;
 
-        subMeshPtr_.reset(new fvMeshSubset(fvm, cz, exposedPatchi));
+        subMeshPtr_.reset
+        (
+            new fvMeshSubset(fvm, cellsToSelect, exposedPatchi)
+        );
     }
 
-
-    prevTimeIndex_ = fvm.time().timeIndex();
 
     // Clear any stored topo
     surfPtr_.clear();
@@ -110,29 +118,26 @@ Foam::sampledInterface::sampledInterface
 )
 :
     sampledSurface(name, mesh, dict),
-    zoneID_(dict.getOrDefault<word>("zone", word::null), mesh.cellZones()),
-    exposedPatchName_(word::null),
+    zoneNames_(),
+    exposedPatchName_(),
     surfPtr_(nullptr),
     prevTimeIndex_(-1),
     subMeshPtr_(nullptr)
 {
-    if (zoneID_.index() != -1)
+    if (!dict.readIfPresent("zones", zoneNames_) && dict.found("zone"))
     {
-        dict.readEntry("exposedPatchName", exposedPatchName_);
+        zoneNames_.resize(1);
+        dict.readEntry("zone", zoneNames_.first());
+    }
 
-        if (mesh.boundaryMesh().findPatchID(exposedPatchName_) == -1)
-        {
-            FatalIOErrorInFunction(dict)
-                << "Cannot find patch " << exposedPatchName_
-                << " in which to put exposed faces." << endl
-                << "Valid patches are " << mesh.boundaryMesh().names()
-                << exit(FatalIOError);
-        }
+    if (-1 != mesh.cellZones().findIndex(zoneNames_))
+    {
+        dict.readIfPresent("exposedPatchName", exposedPatchName_);
 
         DebugInfo
-            << "Restricting to cellZone " << zoneID_.name()
+            << "Restricting to cellZone " << flatOutput(zoneNames_)
             << " with exposed internal faces into patch "
-            << exposedPatchName_ << endl;
+            << mesh.boundaryMesh().findPatchID(exposedPatchName_) << endl;
     }
 }
 

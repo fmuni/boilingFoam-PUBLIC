@@ -106,11 +106,13 @@ Foam::reconstructionSchemes::reconstructionSchemes
     (
         IOobject
         (
-            "recon::normal",
+            IOobject::groupName("interfaceNormal", alpha1.group()),
             alpha1_.mesh().time().timeName(),
             alpha1_.mesh(),
             IOobject::NO_READ,
-            IOobject::AUTO_WRITE
+            dict.getOrDefault("writeFields",false)
+          ? IOobject::AUTO_WRITE
+          : IOobject::NO_WRITE
         ),
         alpha1_.mesh(),
         dimensionedVector(dimArea, Zero)
@@ -119,11 +121,13 @@ Foam::reconstructionSchemes::reconstructionSchemes
     (
         IOobject
         (
-            "recon::centre",
+            IOobject::groupName("interfaceCentre", alpha1.group()),
             alpha1_.mesh().time().timeName(),
             alpha1_.mesh(),
             IOobject::NO_READ,
-            IOobject::AUTO_WRITE
+            dict.getOrDefault("writeFields",false)
+          ? IOobject::AUTO_WRITE
+          : IOobject::NO_WRITE
         ),
         alpha1_.mesh(),
         dimensionedVector(dimLength, Zero)

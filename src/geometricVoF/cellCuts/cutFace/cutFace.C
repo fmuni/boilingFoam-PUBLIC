@@ -83,8 +83,8 @@ void Foam::cutFace::calcSubFace
 
         if
         (
-            (pointStatus[idx] < 0 && pointStatus[nextIdx] > 0) ||
-            (pointStatus[idx] > 0 && pointStatus[nextIdx] < 0)
+            (pointStatus[idx] < 0 && pointStatus[nextIdx] > 0)
+         || (pointStatus[idx] > 0 && pointStatus[nextIdx] < 0)
         ) // cut on edge cut Value is zero
         {
             label nextP = f.nextLabel(idx);
@@ -161,8 +161,8 @@ void Foam::cutFace::calcSubFace
 
         if
         (
-            (pointStatus[idx] < 0 && pointStatus[nextIdx] > 0) ||
-            (pointStatus[idx] > 0 && pointStatus[nextIdx] < 0)
+            (pointStatus[idx] < 0 && pointStatus[nextIdx] > 0)
+         || (pointStatus[idx] > 0 && pointStatus[nextIdx] < 0)
         ) // cut on edge cut Value is zero
         {
             label nextP = f.nextLabel(idx);
@@ -232,8 +232,8 @@ void Foam::cutFace::calcSubFace
 
         if
         (
-            (pointStatus[idx] < 0 && pointStatus[nextIdx] > 0) ||
-            (pointStatus[idx] > 0 &&  pointStatus[nextIdx] < 0)
+            (pointStatus[idx] < 0 && pointStatus[nextIdx] > 0)
+         || (pointStatus[idx] > 0 &&  pointStatus[nextIdx] < 0)
         )
         {
             label nextP = f.nextLabel(idx);
@@ -328,7 +328,10 @@ void Foam::cutFace::calcSubFaceCentreAndArea
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::cutFace::cutFace(const fvMesh& mesh)
+Foam::cutFace::cutFace
+(
+    const fvMesh& mesh
+)
 :
     mesh_(mesh)
 {}

@@ -246,7 +246,7 @@ Foam::scalar Foam::cutFaceAdvect::timeIntegratedFaceFlux
 
         // Check if pTimes changes direction more than twice when looping face
         label nShifts = 0;
-        forAll(pTimes_, pi) // i have no clue what this is
+        forAll(pTimes_, pi)
         {
             const label oldEdgeSign =
                 sign(pTimes_[(pi + 1) % nPoints] - pTimes_[pi]);
@@ -356,7 +356,7 @@ Foam::scalar Foam::cutFaceAdvect::timeIntegratedFaceFlux
 
         // Check if pTimes changes direction more than twice when looping face
         label nShifts = 0;
-        forAll(pTimes_, pi) // i have no clue what this is
+        forAll(pTimes_, pi)
         {
             const label oldEdgeSign =
                 sign(pTimes_[(pi + 1) % nPoints] - pTimes_[pi]);
@@ -981,30 +981,6 @@ void Foam::cutFaceAdvect::cutPoints
             << ", f - f0 = " << f - f0 << " and f0 = " << f0
             << endl;
     }
-}
-
-
-const Foam::point& Foam::cutFaceAdvect::subFaceCentre() const
-{
-    return subFaceCentre_;
-}
-
-
-const Foam::vector& Foam::cutFaceAdvect::subFaceArea() const
-{
-    return subFaceArea_;
-}
-
-
-const Foam::DynamicList<Foam::point>& Foam::cutFaceAdvect::subFacePoints() const
-{
-    return subFacePoints_;
-}
-
-
-const Foam::DynamicList<Foam::point>& Foam::cutFaceAdvect::surfacePoints() const
-{
-    return surfacePoints_;
 }
 
 

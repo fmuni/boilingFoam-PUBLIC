@@ -147,28 +147,49 @@ class cutCellPLIC
         );
 
         //- Returns subCellCentre
-        const point& subCellCentre() const;
+        const point& subCellCentre() const noexcept
+        {
+            return subCellCentre_;
+        }
 
         //- Returns subCellVolume
-        scalar subCellVolume() const;
+        scalar subCellVolume() const noexcept
+        {
+            return subCellVolume_;
+        }
 
         //- Returns the points of the cutting PLICface
         const DynamicList<point>& facePoints();
 
         //- Returns the centre of the cutting PLICface
-        const point& faceCentre() const;
+        const point& faceCentre() const noexcept
+        {
+            return faceCentre_;
+        }
 
         //- Returns the area normal vector of the cutting PLICface
-        const vector& faceArea() const;
+        const vector& faceArea() const noexcept
+        {
+            return faceArea_;
+        }
 
         //- Returns cellStatus
-        label cellStatus() const;
+        label cellStatus() const noexcept
+        {
+            return cellStatus_;
+        }
 
         //- Returns volume of fluid value
-        scalar VolumeOfFluid() const;
+        scalar VolumeOfFluid() const noexcept
+        {
+            return VOF_;
+        }
 
         //- Returns cutValue
-        scalar cutValue() const;
+        scalar cutValue() const noexcept
+        {
+            return cutValue_;
+        }
 
         //- Resets internal values
         void clearStorage();

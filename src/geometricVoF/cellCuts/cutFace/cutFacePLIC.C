@@ -115,30 +115,6 @@ Foam::label Foam::cutFacePLIC::calcSubFace
 }
 
 
-const Foam::point& Foam::cutFacePLIC::subFaceCentre() const
-{
-    return subFaceCentre_;
-}
-
-
-const Foam::vector& Foam::cutFacePLIC::subFaceArea() const
-{
-    return subFaceArea_;
-}
-
-
-const Foam::DynamicList<Foam::point>& Foam::cutFacePLIC::subFacePoints() const
-{
-    return subFacePoints_;
-}
-
-
-const Foam::DynamicList<Foam::point>& Foam::cutFacePLIC::surfacePoints() const
-{
-    return surfacePoints_;
-}
-
-
 void Foam::cutFacePLIC::clearStorage()
 {
     subFaceCentre_ = Zero;

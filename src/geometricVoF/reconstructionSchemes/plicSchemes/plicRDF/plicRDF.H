@@ -78,6 +78,14 @@ class plicRDF
 {
     // Private Data
 
+        //-  residuals storage
+        struct normalRes
+        {
+            label celli = {};
+            scalar normalResidual = {};
+            scalar avgAngle = {};
+        };
+
         //- Reference to mesh
         const fvMesh& mesh_;
 
@@ -110,14 +118,8 @@ class plicRDF
         //- Calculates the RDF function
         reconstructedDistanceFunction RDF_;
 
-        //- Provides stencil and map
-        zoneDistribute& exchangeFields_;
-
         //- surfaceIterator finds the plane centre for specified VOF value
         surfaceIteratorPLIC sIterPLIC_;
-        
-        //- RDF stencil outside interface
-        label RDFStencil_;
 
 
     // Private Member Functions
@@ -132,8 +134,7 @@ class plicRDF
         //- compute the normal residuals
         void calcResidual
         (
-            Map<scalar>& normalResidual,
-            Map<scalar>& avgAngle
+            List<normalRes>& normalResidual
         );
 
         //- interpolation of the normals from the previous time step

@@ -123,16 +123,28 @@ public:
         );
 
         //- Returns centre of cutted face
-        const point& subFaceCentre() const;
+        const point& subFaceCentre() const noexcept
+        {
+            return subFaceCentre_;
+        }
 
         //- Returns area vector of cutted face
-        const vector& subFaceArea() const;
+        const vector& subFaceArea() const noexcept
+        {
+            return subFaceArea_;
+        }
 
         //- Returns the cut edge of the cutted face
-        const DynamicList<point>& subFacePoints() const;
+        const DynamicList<point>& subFacePoints() const noexcept
+        {
+            return subFacePoints_;
+        }
 
         //- Returns point of the face in sorted of cutted face
-        const DynamicList<point>& surfacePoints() const;
+        const DynamicList<point>& surfacePoints() const noexcept
+        {
+            return surfacePoints_;
+        }
 
         //- Resets internal variables
         void clearStorage();

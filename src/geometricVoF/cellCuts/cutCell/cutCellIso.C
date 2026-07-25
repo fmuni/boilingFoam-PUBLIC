@@ -115,7 +115,7 @@ Foam::label Foam::cutCellIso::calcSubCell
         // In the rare but occuring cases where a cell is only touched at a
         // point or a line the isoFaceArea_ will have zero length and here the
         // cell should be treated as either completely empty or full.
-        if (mag(faceArea_) < 10*SMALL)
+        if (mag(faceArea_) < ROOTVSMALL)
         {
             if (nFaceBelowInterface == 0)
             {
@@ -170,21 +170,9 @@ Foam::label Foam::cutCellIso::calcSubCell
 }
 
 
-const Foam::point& Foam::cutCellIso::subCellCentre() const
-{
-    return subCellCentre_;
-}
-
-
-Foam::scalar Foam::cutCellIso::subCellVolume() const
-{
-    return subCellVolume_;
-}
-
-
 const Foam::DynamicList<Foam::point>& Foam::cutCellIso::facePoints()
 {
-    if (facePoints_.size() == 0)
+    if (facePoints_.empty())
     {
         // get face points in sorted order
         calcIsoFacePointsFromEdges
@@ -197,36 +185,6 @@ const Foam::DynamicList<Foam::point>& Foam::cutCellIso::facePoints()
     }
 
     return facePoints_;
-}
-
-
-const Foam::point& Foam::cutCellIso::faceCentre() const
-{
-    return faceCentre_;
-}
-
-
-const Foam::vector& Foam::cutCellIso::faceArea() const
-{
-    return faceArea_;
-}
-
-
-Foam::label Foam::cutCellIso::cellStatus() const
-{
-    return cellStatus_;
-}
-
-
-Foam::scalar Foam::cutCellIso::VolumeOfFluid() const
-{
-    return VOF_;
-}
-
-
-Foam::scalar Foam::cutCellIso::cutValue() const
-{
-    return cutValue_;
 }
 
 

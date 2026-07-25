@@ -83,12 +83,8 @@ class gradAlpha
         //  Those with surfCellTol_ < alpha1 < 1 - surfCellTol_
         scalar surfCellTol_;
 
-        //- Provides stencil and map
-        zoneDistribute& exchangeFields_;
-
         //- SurfaceIterator finds the plane centre for specified VOF value
         surfaceIteratorPLIC sIterPLIC_;
-
 
     // Private Member Functions
 

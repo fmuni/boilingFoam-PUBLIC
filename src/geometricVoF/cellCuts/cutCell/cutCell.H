@@ -99,7 +99,7 @@ public:
     // Constructors
 
         //- Construct from fvMesh
-        explicit cutCell(const fvMesh& unused);
+        explicit cutCell(const fvMesh& mesh);
 };
 
 

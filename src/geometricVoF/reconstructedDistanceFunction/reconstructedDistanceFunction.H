@@ -74,9 +74,6 @@ class reconstructedDistanceFunction
         //- Is the cell in the interface band?
         boolList nextToInterface_;
 
-        //- Number of rings
-        label neiRingLevel_;
-        
         //- Return patch of all coupled faces.
         autoPtr<indirectPrimitivePatch> coupledFacesPatch() const;
 
@@ -111,12 +108,12 @@ public:
             surfaceVectorField::Boundary& nHatb
         );
 
-        const volScalarField& cellDistLevel() const
+        const volScalarField& cellDistLevel() const noexcept
         {
             return cellDistLevel_;
         }
 
-        const boolList& nextToInterface() const
+        const boolList& nextToInterface() const noexcept
         {
             return nextToInterface_;
         }

@@ -27,7 +27,6 @@ Class
     Foam::reconstructionSchemes
 
 Description
-
     Original code supplied by Henning Scheufler, DLR (2019)
 
 SourceFiles
@@ -127,7 +126,7 @@ public:
                     const labelList& meshCells
                 )
                 :
-                    meshedSurface(pointLst, faceLst, surfZoneList{}),
+                    meshedSurface(pointLst, faceLst, surfZoneList()),
                     meshCells_(meshCells)
                 {}
 
@@ -142,7 +141,7 @@ public:
                     (
                         std::move(pointLst),
                         std::move(faceLst),
-                        surfZoneList{}
+                        surfZoneList()
                     ),
                     meshCells_(std::move(meshCells))
                 {}
@@ -210,13 +209,13 @@ public:
     // Member Functions
 
         //- Access to the model dictionary
-        dictionary& modelDict()
+        dictionary& modelDict() noexcept
         {
             return reconstructionSchemesCoeffs_;
         }
 
         //- Const access to the model dictionary
-        const dictionary& modelDict() const
+        const dictionary& modelDict() const noexcept
         {
             return reconstructionSchemesCoeffs_;
         }
@@ -224,14 +223,14 @@ public:
         //- Reconstruct the interface
         virtual void reconstruct(bool forceUpdate = true) = 0;
 
-        //- Reference to interface normals
-        const volVectorField& normal() const
+        //- const-Reference to interface normals
+        const volVectorField& normal() const noexcept
         {
             return normal_;
         }
 
-        //- Reference to interface centres
-        const volVectorField& centre() const
+        //- const-Reference to interface centres
+        const volVectorField& centre() const noexcept
         {
             return centre_;
         }
@@ -249,13 +248,13 @@ public:
         }
 
         //- Does the cell contain interface
-        const boolList& interfaceCell() const
+        const boolList& interfaceCell() const noexcept
         {
             return interfaceCell_;
         }
 
         //- List of cells with an interface
-        const DynamicField<label>& interfaceLabels() const
+        const DynamicField<label>& interfaceLabels() const noexcept
         {
             return interfaceLabels_;
         }
